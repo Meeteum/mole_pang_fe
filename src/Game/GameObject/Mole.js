@@ -1,5 +1,6 @@
 import mole from "../../Img/mole.png";
 import speechBubble from "../../Img/exampleMark.png";
+import deadMole from "../../Img/deadMole.png";
 
 class Mole {
     constructor(x, y, w, h, id, gameContext) {
@@ -8,6 +9,9 @@ class Mole {
 
         this.speechBubbleImg = new Image();
         this.speechBubbleImg.src = speechBubble;
+
+        this.deadMoleImg = new Image();
+        this.deadMoleImg.src = deadMole;
 
         this.gameContext = gameContext;
         this.moleData = {
@@ -48,6 +52,7 @@ class Mole {
         this.moleData["problem"] = problem;
         this.moleData["isAnswer"] = isAnswer;
         this.moleData["isGame"] = isGame;
+        console.log(isAnswer);
     }
 
 
@@ -111,7 +116,7 @@ class Mole {
 
         }
 
-        if (gameState === 2) {
+        if (gameState === 3) {
             this.init();
         }
 
@@ -123,12 +128,27 @@ class Mole {
     render() {
         if (this.moleData["isGame"]) {
             // Render mole Img
-            this.gameContext.drawImage(
-                this.moleImg,
-                this.moleData["position"][0],
-                this.moleData["position"][1],
-                this.moleData["width"],
-                this.moleData["height"]);
+
+            if (this.moleData["isClicked"]) {
+                this.gameContext.clearRect(this.moleData["position"][0], this.moleData["position"][1], this.moleData["width"], this.moleData["height"]);
+                this.gameContext.drawImage(
+                    // this.moleData["isClicked"] ? this.deadMoleImg : this.moleImg,
+                    this.deadMoleImg,
+                    this.moleData["position"][0] - 25,
+                    this.moleData["position"][1] - 25,
+                    this.moleData["width"] + 55,
+                    this.moleData["height"] + 25);
+            }
+            else {
+
+                this.gameContext.drawImage(
+                    // this.moleData["isClicked"] ? this.deadMoleImg : this.moleImg,
+                    this.moleImg,
+                    this.moleData["position"][0],
+                    this.moleData["position"][1],
+                    this.moleData["width"],
+                    this.moleData["height"]);
+            }
 
             // Render speech bubble Img
             this.gameContext.drawImage(

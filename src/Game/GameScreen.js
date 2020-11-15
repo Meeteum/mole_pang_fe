@@ -1,6 +1,5 @@
 import React from "react"
 import styled from "styled-components"
-import GameScore from "./GameScore"
 import GamePlay from "./GamePlay"
 
 const Whole = styled.div`

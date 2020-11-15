@@ -5,14 +5,34 @@ import hammer from "../Img/hammer.png"
 import bumb from "../Img/bumb.png"
 import Mole from "./GameObject/Mole.js";
 import BoardText from "./GameObject/BoardText.js";
+import GameScreenHeader from "./GameScreenHeader.js";
 
+
+// set cursor img
+const GameBackground = styled.div`
+    width: 960px;
+    height: 600px;
+    background-image: url(${background});
+    
+    ${(props) => props.isClick ? css`cursor: url(${bumb}), auto` : css`cursor: url(${hammer}), auto`}
+   
+`;
+
+const GameCanvas = styled.canvas.attrs({
+    width: 960,
+    height: 600
+})`
+    // width: 960px;
+    // height: 530px;
+
+`;
 
 const gameStageData = [
     {
         stage: 1,
         consonant: "ㄱㅁㅎ",
-        problem: ["곰마하", "김미후", "곤마히", "가만히"],
-        answer: 4,
+        problem: ["곰마하", "곤마히", "가만히"],
+        answer: 2,
     },
     {
         stage: 2,
@@ -27,9 +47,22 @@ const gameStageData = [
         problem: ["낄", "꼴", "꿀", "깡"],
         answer: 2,
     },
+    {
+        stage: 4,
+        consonant: "ㄱㄹㄱ",
+        problem: ["기러기", "곰돌이", "팽팽이", "흰둥이"],
+        answer: 0,
+    },
+    {
+        stage: 3,
+        consonant: "ㅅㅅㅅ",
+        problem: ["샤사샥", "솔방울", "숭실대", "뭘봐요"],
+        answer: 0,
+    },
 
 ];
 
+// game setting value
 const gameSetting = {
     "GAME_W": 960,
     "GAME_H": 600,
@@ -42,42 +75,31 @@ const gameSetting = {
     "MOLE_INTERVAL_Y": 74,
 };
 
+let preCount = 0;   // Value for state Hold Time Calculation
+let count = 0;      // game running time    (게임 클럭)
+let stage = 0;      // game stage (stage == 문제)
 
-// set cursor img
-const GameBackground = styled.div`
-    width: 960px;
-    height: 600px;
-    background-image: url(${background});
-    
-    // ${(props) => props.isClick ? css`cursor: url(${bumb}), auto` : css`cursor: url(${hammer}), auto`}
-   
-`;
-
-const GameCanvas = styled.canvas.attrs({
-    width: 960,
-    height: 600
-})`
-    // width: 960px;
-    // height: 530px;
-
-`;
-
-let preCount = 0;
-let count = 0;
-let stage = 0;
-
-// Val Game Frame
-let frame = 32
+// Val Game Frame   16 == 60fps,  32 == 30fps
+let frame = 32;
 // 0: 문제랑 두더지가 나옴
 let gameState = 0;
 
+let Moles = [];
+let gBoardText = null;
+let gameScreenHeader = null;
 
-// 9개의 두더지에 임의 값을 넣고, 그 중 최대 값 3~ 4 개인 두더지만 뽑아서 현 라운드에 보여준다.
+let gameCanvas;         // canvas id
+let gameContext;        // canvas ref
+
+// Any value is put in nine moles, and only a mole with a maximum value of three to four of them is selected and shown in the current round.
+// 9개의 두더지에 임의 값을 넣고, 그 중 최대 값 3~ 4 개인 두더지만 뽑아서 현 스테이지에 보여준다. => 스테이지에 보여줄 두더지를 선정한다.
 const setMoleIsGame = (numProblem) => {
-    let randomValueList = [];        // Random value list of 1~9 mole (보여질 두더지를 뽑기 위한 각 두더지의 랜덤값리스트) 
-    let numMole = numProblem;        // Show Mole number (현 라운드에 보여질 두더지 수)
-    let isGameMoleList = [];         // show Mole id on current stage (현 라운드에 보여질 두더지 id)
-    // set randomValueList
+    let randomValueList = [];        // Random value list of 1~9 mole for showing moles (보여질 두더지를 뽑기 위한 각 두더지의 랜덤값리스트) 
+    let numMole = numProblem;        // Show Mole number (현 스테이지에 보여질 두더지 수)
+    let isGameMoleList = [];         // show Mole id on current stage (현 스테이지에 보여질 두더지 id)
+
+    let randomState = Math.floor(Math.random() * 2);
+    // set randomValueList 0 ~ 999
     for (let i = 0; i < 9; i++) {
         randomValueList.push(Math.floor(Math.random() * 1000));
     }
@@ -86,7 +108,7 @@ const setMoleIsGame = (numProblem) => {
     let preMax = 1000;
     for (let r = 0; r < numMole; r++) {
         let max = 0;
-        for (let n = 0; n < 9; n++) {
+        for (let n = 0 + randomState; n < 9; n += 2) {
             if (max < randomValueList[n] && randomValueList[n] < preMax) {
                 max = randomValueList[n];
                 isGameMoleList[r] = n;
@@ -99,18 +121,25 @@ const setMoleIsGame = (numProblem) => {
 }
 
 
-// {
-//     stage: 1,
-//     consonant: "ㄱㅁㅎ",
-//     problem: ["곰마하", "김미후", "곤마히", "가만히"],
-//     answer: 3,
-// },
 
-const gameRender = () => {
+let isCorrectAnswer = false;
+let isChangeScore = false;
 
+const gameController = () => {
+
+    if (count % 74 === 0) {
+        gameScreenHeader.update(gameState);
+        if (gameState === 2 && isChangeScore) {
+            gameScreenHeader.setIsCorrectAnswer({ isCorrectAnswer: isCorrectAnswer })
+            isChangeScore = false;
+        }
+    }
+
+    // Create Update(calculate & function) Area
     if (count % frame === 0) {
         // Stage Start
         if (gameState === 0) {
+            // gameScreenHeader.update(gameState);
             let curStageMoleList = setMoleIsGame(gameStageData[stage]["problem"].length);
             let k = 0;
             curStageMoleList.forEach((element) => {
@@ -129,40 +158,58 @@ const gameRender = () => {
                 k++;
             });
 
-            // for (let i = 0; i < 9; i++) {
-
-            //     Moles[i].setIsgGame(curStageMoleList.includes(i));
-            //     Moles[i].update(gameState);
-            //     gameStageData()
-            // }
-
-            // Moles.forEach((element) => {
-            //     element.update(gameState);
-            // })
 
             gBoardText.update({ gameState: gameState, boardStageData: gameStageData[stage] });
             gameState = 1;
         }
 
+        // check if user correct answer in stage
         if (gameState === 1) {
-            let numStageClear = [];
+            // gameScreenHeader.update(gameState);
             gameCanvas.addEventListener("click", function (e) {
+                let numStageClear = [];
                 Moles.forEach((element) => {
                     // numStageClear = element.update({ gameState: gameState, mousePos: { x: e.layerX, y: e.layerY } });
                     numStageClear.push(element.update({ gameState: gameState, mousePos: { x: e.layerX, y: e.layerY } }));
                 })
-                if (numStageClear.includes(2)) {
+                // correct answer
+                if (numStageClear.includes(1)) {
+                    gameState = 2;
+                    isChangeScore = true;
+                    preCount = count;
+                    isCorrectAnswer = true;
+                    console.log("Yes!!!");
+                }
+                // no correct answer
+                else if (numStageClear.includes(2)) {
                     gameState = 2;
                     preCount = count;
+                    isCorrectAnswer = false;
+                    console.log("No!!!");
                 }
+
             });
         }
 
+        //  Show O , X in stage
         if (gameState === 2) {
+            // gameScreenHeader.update(gameState);
+
+            gBoardText.update({ gameState: gameState, isCorrectAnswer: isCorrectAnswer });
+
+            if (preCount + 50 < count) {
+                gameState = 3;
+            }
+
+        }
+
+        // Show Answer on board , in stage
+        if (gameState === 3) {
+            // gameScreenHeader.update(gameState);
 
             gBoardText.update({ gameState: gameState });
 
-            if (preCount + 100 < count) {
+            if (preCount + 150 < count) {
                 Moles.forEach((element) => {
                     // numStageClear = element.update({ gameState: gameState, mousePos: { x: e.layerX, y: e.layerY } });
                     element.update({ gameState: gameState });
@@ -173,58 +220,37 @@ const gameRender = () => {
             }
         }
 
-
-
-        // Moles[2].setIsGame(true);
     }
 
-
+    // Create Render Area
     if (count % frame === 0) {
-
         gameContext.clearRect(0, 0, gameSetting["GAME_W"], gameSetting["GAME_H"]);
 
         Moles.forEach((element) => {
             // element.setIsGame(true);
             element.render();
         });
-
         gBoardText.render({ gameState: gameState });
-
+        gameScreenHeader.render();
     }
 
     count += 1;
 
-    return window.requestAnimationFrame(gameRender);
+    return window.requestAnimationFrame(gameController);
 
 }
-
-const boardRender = ({ x, y, width, height, color }) => {
-    gameContext.strokeStyle = color;
-    gameContext.rect(x - width / 2, y - height / 2, width, height);
-    gameContext.stroke();
-}
-
-let moleArrayData = [];
-let Moles = [];
-let gBoardText = null;
-
-let gameCanvas;
-let gameContext;
-let isSceneChange = true;
 
 function GamePlay() {
 
+    // Change the mouse img if mouse click on canvas (canvas 영역에서 마우스를 클릭하면 마우스의 해머 이미지가 변하게 하는 state)
     const [isMouseClick, setIsMouseClick] = useState(false);
 
     const onMouseClick = () => {
         setIsMouseClick(!isMouseClick);
     };
 
+    // 
     const setInitMole = () => {
-        // for (let i = 0; i < 9; i++) {
-        //     // moleArrayData.push({id: i, position: [(i%3+1)*gameSetting["GAME_W"]/4-gameSetting["GAME_C_W"], (parseInt(i/3)+1)*gameSetting["GAME_H"]/4-gameSetting["GAME_C_H"]], isAnswer:false, example:"", isGame:true});
-        //     moleArrayData.push({ id: i, position: [gameSetting["FIRST_MOLE_X"] + (i % 3) * gameSetting["MOLE_INTERVAL_X"], gameSetting["FIRST_MOLE_Y"] + (parseInt(i / 3)) * gameSetting["MOLE_INTERVAL_Y"]], isAnswer: false, example: "", isGame: false });
-        // }
 
         // 207 , 74
         // (234,279) (442,279) (649,279)   - 207
@@ -242,19 +268,14 @@ function GamePlay() {
                     gameContext)
                 );
         }
-        // font-family: Jua;
-        // font-style: normal;
-        // font-weight: normal;
-        // font-size: 80px;
-        // line-height: 100px;
-        // text-align: center;
 
         gBoardText = new BoardText(385, 225, 100, 100, gameContext);
-
+        gameScreenHeader = new GameScreenHeader(gameContext);
     };
 
     let gameCanvasRef = useRef();
 
+    // just one
     useEffect(() => {
 
         let cmp = gameCanvasRef.current;
@@ -263,7 +284,7 @@ function GamePlay() {
 
         setInitMole();
 
-        let t = window.requestAnimationFrame(gameRender);
+        let t = window.requestAnimationFrame(gameController);
 
     }, []);
 

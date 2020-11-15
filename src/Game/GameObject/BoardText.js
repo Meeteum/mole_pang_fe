@@ -1,4 +1,5 @@
 import circle from "../../Img/Circle.png";
+import cross from "../../Img/cross.png";
 
 class BoardText {
     constructor(x, y, w, h, gameContext) {
@@ -6,12 +7,17 @@ class BoardText {
         this.circleImg = new Image();
         this.circleImg.src = circle;
 
+        this.crossImg = new Image();
+        this.crossImg.src = cross;
+
         this.boardTextData = {
             position: [x, y],
             width: w,
             height: h,
             isNext: false,
-            consonant: "ㅂㄷ",
+            consonant: "ㅂㄷ",          // text on board
+            answer: "",
+            isCorrectAnswer: false,
         };
     }
 
@@ -30,26 +36,34 @@ class BoardText {
         }
     }
 
-    // {
-    //     stage: 1,
-    //     consonant: "ㄱㅁㅎ",
-    //     problem: ["곰마하", "김미후", "곤마히", "가만히"],
-    //     answer: 3,
-    // },
+    setBoardData({ consonant, problem, answer }) {
+        this.boardTextData["consonant"] = consonant;
+        this.boardTextData["answer"] = problem[answer];
+    }
 
-    setBoardData({ consonant }) {
+    // Set board text
+    setConsonant({ consonant }) {
         this.boardTextData["consonant"] = consonant;
     }
 
-    update({ gameState, boardStageData }) {
+    update({ gameState, boardStageData, isCorrectAnswer }) {
+
+        // set board data on init state
         if (gameState === 0) {
             this.setBoardData(boardStageData);
             // console.log(boardStageData);
             this.setBoardTextPositionX();
         }
 
+
         if (gameState === 2) {
-            this.setBoardData({ consonant: "" });
+            this.setConsonant({ consonant: "" });
+            this.boardTextData["isCorrectAnswer"] = isCorrectAnswer;
+
+        }
+
+        if (gameState === 3) {
+            this.setConsonant({ consonant: this.boardTextData["answer"] });
         }
 
     }
@@ -67,8 +81,9 @@ class BoardText {
             );
         }
         else {
+            let correctImg = this.boardTextData["isCorrectAnswer"] ? this.circleImg : this.crossImg;
             this.gameContext.drawImage(
-                this.circleImg,
+                correctImg,
                 420,
                 135,
                 130,
