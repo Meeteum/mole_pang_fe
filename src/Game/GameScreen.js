@@ -15,13 +15,13 @@ const Whole = styled.div`
 
 // const Head
 
-function GameScreen(){
+function GameScreen() {
 
     return (
-    <Whole>
-        <GameScore/>
-        <GamePlay/>
-    </Whole>
+        <Whole>
+            {/* <GameScore/> */}
+            <GamePlay />
+        </Whole>
     )
 }
 

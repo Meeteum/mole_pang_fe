@@ -4,7 +4,7 @@ import styled from "styled-components";
 const Whole = styled.div`
 
     width: 960px;
-    height: 70px;
+    height: 51px;
  
     display: flex;
 
@@ -12,13 +12,14 @@ const Whole = styled.div`
     // justify-content: center;
     // align-items: center;
 
-    // border : 1px solid blue;
+    border : 1px solid blue;
+
 
 `;
 
 const BasicTxt = styled.div`
     width: 240px;
-    height: 70px;
+    height: 51px;
 
     // border : 1px solid red;
 
@@ -27,7 +28,7 @@ const BasicTxt = styled.div`
     font-style: normal;
     font-weight: normal;
     font-size: 20px;
-    line-height: 70px;
+    line-height: 51px;
     text-align: center;
     // font-weight: bold;
     // font-size: 14px;
@@ -40,14 +41,14 @@ const BasicTxt = styled.div`
 
 const GameScoreTxt = styled.div`
     width: 240px;
-    height: 70px;
+    height: 51px;
 
     // font-weight: 400;
     font-family: Jua;
     font-style: normal;
     font-weight: normal;
     font-size: 30px;
-    line-height: 70px;
+    line-height: 55px;
     text-align: center;
     // border : 1px solid red;
 `;
@@ -56,26 +57,26 @@ const GameTimeTxt = styled.div`
 
     
     width: 240px;
-    height: 70px;
+    height: 51px;
 
     font-family: Jua;
     font-style: normal;
     font-weight: normal;
     font-size: 30px;
-    line-height: 70px;
+    line-height: 55px;
     text-align: center;
-`; 
+`;
 
-function GameScore({score, time}){
+function GameScore({ score, time }) {
 
     return (
-    <Whole>
-        <BasicTxt>점수 </BasicTxt>
-        <GameScoreTxt>100</GameScoreTxt>
-        <BasicTxt>제한 시간 </BasicTxt>
-        <GameTimeTxt>10</GameTimeTxt>
-        
-    </Whole>
+        <Whole>
+            <BasicTxt>점수 </BasicTxt>
+            <GameScoreTxt>100</GameScoreTxt>
+            <BasicTxt>제한 시간 </BasicTxt>
+            <GameTimeTxt>10</GameTimeTxt>
+
+        </Whole>
     )
 }
 

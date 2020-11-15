@@ -35,7 +35,8 @@ function GameLayout() {
             gameScreen = <Modal />;
             break;
         default:
-            gameScreen = <GameMenu />;
+            // gameScreen = <GameMenu />;
+            gameScreen = <GameScreen />;
             break;
     };
 
