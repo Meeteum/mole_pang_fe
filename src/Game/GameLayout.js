@@ -1,8 +1,10 @@
 import React from "react";
 import styled from "styled-components";
 import GameScreen from "./GameScreen";
-import Modal from "./Modal";
+import DescriptionModal from "./DescriptionModal";
 import GameMenu from "./GameMenu";
+import BaseModal from "./BaseModal";
+import EndScoreModal from "./EndScoreModal";
 
 import { useSetGameScreenState, useGameScreenState } from "./GameContext";
 
@@ -26,17 +28,20 @@ function GameLayout() {
     let gameScreen = null;
     switch (gameScreenState) {
         case 1:
-            gameScreen = <Modal />;
+            gameScreen = <DescriptionModal />;
             break;
         case 2:
             gameScreen = <GameScreen />;
             break;
         case 3:
-            gameScreen = <Modal />;
+            gameScreen = <DescriptionModal />;
             break;
         default:
+            // gameScreen = <BaseModal />;
+            // gameScreen = <DescriptionModal />;
+            gameScreen = <EndScoreModal />;
             // gameScreen = <GameMenu />;
-            gameScreen = <GameScreen />;
+            // gameScreen = <GameScreen />;
             break;
     };
 

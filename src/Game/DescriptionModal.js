@@ -2,52 +2,53 @@ import React, { useState } from "react";
 import styled from "styled-components"
 import { BsX, BsChevronLeft, BsChevronRight, BsSlash } from "react-icons/bs";
 import { IoMdMore } from "react-icons/io";
+import BaseModal from "./BaseModal";
 
 // import { FaBeer } from 'react-icons/fa';
 
 
-const Whole = styled.div`
+// const Whole = styled.div`
 
-    width: 960px;
-    height: 595px;
+//     width: 960px;
+//     height: 595px;
 
 
-    background: #777676;
-    // border : 1px solid black;
+//     background: #777676;
+//     // border : 1px solid black;
 
-    display:flex;
-    flex-direction : column;
+//     display:flex;
+//     flex-direction : column;
 
-    justify-content: center;
-    align-items: center;
-    // background: blue;
+//     justify-content: center;
+//     align-items: center;
+//     // background: blue;
 
-`;
+// `;
 
-const ModalScreen = styled.div`
-    width: 600px;
-    height: 370px;
+// const ModalScreen = styled.div`
+//     width: 600px;
+//     height: 370px;
 
-    border : 1px solid black;
-    margin : auto;
+//     border : 1px solid black;
+//     margin : auto;
 
-    background: #FFFEFE;
-    border-radius: 10px;
+//     background: #FFFEFE;
+//     border-radius: 10px;
 
-    display:flex;
+//     display:flex;
 
-    justify-content: center;
-    align-items: center;
-`;
+//     justify-content: center;
+//     align-items: center;
+// `;
 
-const ModalLayout = styled.div`
+// const ModalLayout = styled.div`
 
-    width: 537px;
+//     width: 537px;
 
-    height: 306px;
+//     height: 306px;
 
-    // border : 1px solid black;
-`;
+//     // border : 1px solid black;
+// `;
 
 const ModalHeader = styled.div`
     width: 535px;
@@ -142,7 +143,7 @@ const PagingMargin = styled.div`
     height: 5px;
 `;
 
-function Modal() {
+function DescriptionModal() {
     const [curPageNum, setCurPageNum] = useState(1);
     const totalPageNum = 2;
 
@@ -165,37 +166,31 @@ function Modal() {
     };
 
     return (
-        <Whole>
+        <BaseModal>
+            <ModalHeader>
+                <ModalTitle>놀이설명</ModalTitle>
+                <BsX onClick={onClose} size="42" color="#C4C4C4" />
+            </ModalHeader>
+            <ModalBody>
+                <ModalBodyLeft>
+                    <ModalTxt>{gameDescription[curPageNum - 1]}</ModalTxt>
+                    <ModalPaging>
+                        <BsChevronLeft onClick={onPagingLeft} />
+                        <PagingMargin />
+                        {curPageNum}
+                        <IoMdMore />
+                        {totalPageNum}
+                        <PagingMargin />
+                        <BsChevronRight onClick={onPagingRight} />
+                        <PagingMargin />
+                    </ModalPaging>
+                </ModalBodyLeft>
 
-            <ModalScreen>
-                <ModalLayout>
-                    <ModalHeader>
-                        <ModalTitle>놀이설명</ModalTitle>
-                        <BsX onClick={onClose} size="42" color="#C4C4C4" />
-                    </ModalHeader>
-                    <ModalBody>
-                        <ModalBodyLeft>
-                            <ModalTxt>{gameDescription[curPageNum - 1]}</ModalTxt>
-                            <ModalPaging>
-                                <BsChevronLeft onClick={onPagingLeft} />
-                                <PagingMargin />
-                                {curPageNum}
-                                <IoMdMore />
-                                {totalPageNum}
-                                <PagingMargin />
-                                <BsChevronRight onClick={onPagingRight} />
-                                <PagingMargin />
-                            </ModalPaging>
-                        </ModalBodyLeft>
-
-                        <ModalImg>x</ModalImg>
-                    </ModalBody>
-                </ModalLayout>
-            </ModalScreen>
-
-        </Whole>
+                <ModalImg>x</ModalImg>
+            </ModalBody>
+        </BaseModal>
     );
 }
 
 
-export default Modal;
+export default DescriptionModal;

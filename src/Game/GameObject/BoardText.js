@@ -66,17 +66,25 @@ class BoardText {
             this.setConsonant({ consonant: this.boardTextData["answer"] });
         }
 
+        if (gameState === 4) {
+            this.setConsonant({ consonant: "끝" });
+        }
+
     }
 
     render({ gameState }) {
-        // console.log(this.boardTextData["example"].length);
+        console.log(gameState);
 
         if (gameState !== 2) {
+            let addX = 0;
+            if (gameState === 4) {
+                addX = 70;
+            }
             this.gameContext.font = "80px Jua"; //폰트의 크기, 글꼴체 지정      
             this.gameContext.fillStyle = "rgba(0, 0, 0, 0.7)"; //색상지정
             this.gameContext.fillText(
                 this.boardTextData["consonant"],
-                this.boardTextData["position"][0],
+                this.boardTextData["position"][0] + addX,
                 this.boardTextData["position"][1]
             );
         }

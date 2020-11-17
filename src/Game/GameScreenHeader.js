@@ -7,7 +7,7 @@ class GameScreenHeader {
             height: 50,
             isNext: false,
         };
-        this.time = 60;
+        this.time = 5;
         this.score = 0;
         this.gameState = 0
     }
@@ -21,6 +21,13 @@ class GameScreenHeader {
         if (isCorrectAnswer) {
             this.score += 10;
         }
+    }
+
+    getIsTimeOut() {
+        if (this.time <= 0) {
+            return true;
+        }
+        return false;
     }
 
     update(gameState) {

@@ -76,6 +76,7 @@ const gameSetting = {
 };
 
 let preCount = 0;   // Value for state Hold Time Calculation
+let preEndCount = 0;
 let count = 0;      // game running time    (게임 클럭)
 let stage = 0;      // game stage (stage == 문제)
 
@@ -122,13 +123,20 @@ const setMoleIsGame = (numProblem) => {
 
 
 
-let isCorrectAnswer = false;
-let isChangeScore = false;
+let isCorrectAnswer = false;            // check if user correct problem (유저가 문제를 맞았는지 여부 확인 변수)
+let isChangeScore = false;              // check if score increase after user correct problem (유저가 정답 여부에 따라 점수 변화를 체크를 확인 변수)
+let isGameEnd = false;                  // check if game is end (시간이 다되어서 게임이 끝나는지 확인)
 
 const gameController = () => {
 
-    if (count % 74 === 0) {
+    // Ingame Header(Score and Time) Render (인게임 헤더에 점수 와 시간 랜더)
+    if (count % 74 === 0 && gameState !== 4) {
         gameScreenHeader.update(gameState);
+        if (gameScreenHeader.getIsTimeOut()) {
+            gameState = 4;
+            preEndCount = count;
+        }
+
         if (gameState === 2 && isChangeScore) {
             gameScreenHeader.setIsCorrectAnswer({ isCorrectAnswer: isCorrectAnswer })
             isChangeScore = false;
@@ -217,6 +225,14 @@ const gameController = () => {
                 gameState = 0;
                 stage += 1;
                 console.log("Next Stage");
+            }
+        }
+
+        if (gameState === 4) {
+            gBoardText.update({ gameState: gameState });
+            console.log("end");
+            if (preEndCount + 150 < count) {
+                // state를 어떻게 바꾸지 ?
             }
         }
 
