@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import BaseModal from "./BaseModal";
-import { BsX } from "react-icons/bs";
+import { BsX, BsChevronLeft, BsChevronRight } from "react-icons/bs";
+import {useUserResultData, useSetGameScreenState} from "./GameContext";
 
 const ModalHeader = styled.div`
     width: 535px;
@@ -13,7 +14,7 @@ const ModalHeader = styled.div`
 
 `;
 
-const ModalTitle = styled.div`
+const ModalTitle = styled.h1`
 
     width: 100px;
     height: 23px;
@@ -51,8 +52,8 @@ const Line = styled.div`
 `;
 
 const ModalBodyLeft = styled.div`
-    width: 272px;
-    height: 254px;
+    width: 278px;
+    height: 251px;
 
     display: flex;
     flex-direction: column;
@@ -98,7 +99,7 @@ const ScoreTxt = styled.div`
 
 const Score = styled.div`
     width: 232px;
-    height: 59px;
+    height: 54px;
 
     font-family: Jua;
     font-style: normal;
@@ -139,18 +140,197 @@ const ModalBodyRight = styled.div`
     justify-content: space-around;
 `;
 
-const Box = styled.div`
+const WordBox = styled.div`
     width: 250px;
     height: 120px;
+
+    display : flex;
+    flex-direction : column;
+    // justify-content: center;
+    align-items:center;
 
     border: 2px solid rgba(0, 0, 0, 0.5);
     box-sizing: border-box;
     border-radius: 5px;
+
+    &:hover{
+        ${BsChevronLeft}{
+            opacity: 1;
+        }
+
+        ${BsChevronRight}{
+            opacity: 1;
+        }
+    }
 `;
 
+const WordHeader = styled.div`
+    width: 232px;
+    height: 48px;
+    display : flex;
+`;
+
+const WordTitle = styled.div`
+    width: 180px;
+    height: 48px;
+    // margin-left: 5px;
+    // border: 1px solid black;
+
+    font-family: Roboto;
+    font-style: normal;
+    font-weight: 900;
+    font-size: 12px;
+    line-height: 45px;
+    /* identical to box height */
+
+    text-align: left;
+
+    color: rgba(0, 0, 0, 0.63);
+`;
+
+const PagingBtn = styled.div`
+    opacity: 1;
+    width: 48px;
+    height: 48px;
+    // border:1px solid black;
+    font-size: 15px;
+    font-weight: 800;
+    line-height: 48px;
+`;
+
+const PagingNum = styled.div`
+    opacity: 1;
+    width: 13px;
+    height: 48px;
+    // border:1px solid black;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 43px;
+`;
+
+const PagingSlash = styled.div`
+    opacity: 1;
+    width: 5px;
+    height: 48px;
+    // border:1px solid black;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 42px;
+`;
+
+const WordList = styled.ul`
+    // display:list-item;
+    list-style:none;
+    padding-left:0px;
+
+    width: 237px;
+    height: 36px;
+    // border: 1px solid blue;
+    display: flex;
+    flex-wrap: wrap;
+    align-items:center;
+    // justify-content:center;
+`;
+
+const WordTxt = styled.li`
+    width: 47px;
+    height: 16px;
+    // border: 1px solid red;
+
+    font-family: Roboto;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 10.5px;
+    line-height: 13px;
+    /* identical to box height */
+
+    text-align: center;
+    color: rgba(0, 0, 0, 0.63);
+`;
+
+let wordList =
+{
+    "incorrectWordList": [],
+    "correctWordList": [],
+};
+
+// function EndScoreModal({ incorrectWordList, correctWordList }) {
 function EndScoreModal() {
 
-    const onClose = () => { };
+    const userResultData = useUserResultData();
+    const setGameScreenState = useSetGameScreenState();
+
+    let incorrectWordData = userResultData["USER_INCORRECT"];
+    let incorrectWordList = [];
+
+    let correctWordData = userResultData["USER_CORRECT"];
+    let correctWordList = [];
+
+    let score = userResultData["USER_SCORE"];
+
+
+
+
+    
+    const [indexIncorrectList, setIndexIncorrectList] = useState(0);
+    const [indexCorrectList, setIndexCorrectList] = useState(0);
+    const wordListSlice = ({wordData, wordList, maxPage}) => {
+        for (let i = 0; i <= maxPage; i++) {
+            wordList.push(wordData.slice(i * 10, (i + 1) * 10));
+        }
+        // return wordList;
+    };
+
+
+
+    let incorrectWordLength = incorrectWordData.length;
+    let maxIncorrectWordPage = Math.floor(incorrectWordLength / 10);
+    wordListSlice({wordData:incorrectWordData, wordList:incorrectWordList, maxPage:maxIncorrectWordPage});
+
+
+    let correctWordLength = correctWordData.length;
+    let maxCorrectWordPage = Math.floor(correctWordLength / 10);
+    wordListSlice({wordData:correctWordData, wordList:correctWordList, maxPage:maxCorrectWordPage});
+
+
+
+    const onPagingRight = (test) => {
+        if (test === "incorrect") {
+            if (indexIncorrectList !== maxIncorrectWordPage - 1) {
+                setIndexIncorrectList(indexIncorrectList + 1);
+            }
+        }
+        else {
+            if (indexCorrectList !== maxCorrectWordPage - 1) {
+                setIndexCorrectList(indexCorrectList + 1);
+            }
+        }
+    };
+    const onPagingLeft = (test) => {
+
+        if (test === "incorrect") {
+            if (indexIncorrectList !== 0) {
+                setIndexIncorrectList(indexIncorrectList - 1);
+            }
+        }
+        else {
+            if (indexCorrectList !== 0) {
+                setIndexCorrectList(indexCorrectList - 1);
+            }
+        }
+
+    };
+
+    const onWordList = ({isLen, wordList, indexList}) => {
+        return isLen === 0 ? <WordTxt></WordTxt> : wordList[indexList].map((tmp) => <WordTxt>{tmp}</WordTxt>);
+    }
+    const onClose = () => {
+        setGameScreenState(5);
+    };
+
+    const onReplay = () => {
+        setGameScreenState(2);
+    };
 
     return (
         <BaseModal>
@@ -163,16 +343,39 @@ function EndScoreModal() {
                 <ModalBodyLeft >
                     <ModalBodyLeftTop>
                         <ScoreTxt>점  수</ScoreTxt>
-                        <Score>600</Score>
+                        <Score>{score}</Score>
                     </ModalBodyLeftTop>
                     <ModalBodyLeftBottom>
-                        <Btn>다시 하기</Btn>
+                        <Btn onClick={onReplay}>다시 하기</Btn>
                         <Btn>순위 보기</Btn>
                     </ModalBodyLeftBottom>
                 </ModalBodyLeft>
                 <ModalBodyRight>
-                    <Box></Box>
-                    <Box></Box>
+                    <WordBox>
+                        <WordHeader>
+                            <WordTitle >틀린 단어</WordTitle>
+                            <PagingBtn onClick={() => onPagingLeft('incorrect')}><BsChevronLeft /></PagingBtn>
+                            <PagingNum>{indexIncorrectList + 1}</PagingNum>
+                            <PagingSlash>|</PagingSlash>
+                            <PagingNum>{maxIncorrectWordPage}</PagingNum>
+                            <PagingBtn onClick={() => { onPagingRight('incorrect') }}><BsChevronRight /></PagingBtn>
+                        </WordHeader>
+                        <WordList>
+                            {onWordList({isLen:incorrectWordLength, wordList:incorrectWordList, indexList:indexIncorrectList})}
+                            {/* {incorrectWordList[indexIncorrectList].map((tmp) => <WordTxt>{tmp}</WordTxt>)} */}
+                        </WordList>
+                    </WordBox>
+                    <WordBox>
+                        <WordHeader>
+                            <WordTitle >맞힌 단어</WordTitle>
+                            <PagingBtn onClick={onPagingLeft}><BsChevronLeft /></PagingBtn>
+                            <PagingNum>{indexCorrectList + 1}</PagingNum>
+                            <PagingSlash>|</PagingSlash>
+                            <PagingNum>{maxCorrectWordPage}</PagingNum>
+                            <PagingBtn onClick={onPagingRight}><BsChevronRight /></PagingBtn>
+                        </WordHeader>
+                        <WordList>{onWordList({isLen:correctWordLength, wordList:correctWordList, indexList:indexCorrectList})}</WordList>
+                    </WordBox>
                 </ModalBodyRight>
             </ModalBody>
         </BaseModal>

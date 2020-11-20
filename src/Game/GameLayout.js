@@ -36,12 +36,15 @@ function GameLayout() {
         case 3:
             gameScreen = <DescriptionModal />;
             break;
+        case 4:
+            gameScreen = <EndScoreModal/>;
+            break;
         default:
             // gameScreen = <BaseModal />;
             // gameScreen = <DescriptionModal />;
-            gameScreen = <EndScoreModal />;
+            // gameScreen = <EndScoreModal />;
             // gameScreen = <GameMenu />;
-            // gameScreen = <GameScreen />;
+            gameScreen = <GameScreen />;
             break;
     };
 

@@ -30,6 +30,10 @@ class GameScreenHeader {
         return false;
     }
 
+    getScore(){
+        return this.score;
+    }
+
     update(gameState) {
         this.gameState = gameState;
 

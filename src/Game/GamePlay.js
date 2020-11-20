@@ -6,6 +6,7 @@ import bumb from "../Img/bumb.png"
 import Mole from "./GameObject/Mole.js";
 import BoardText from "./GameObject/BoardText.js";
 import GameScreenHeader from "./GameScreenHeader.js";
+import { useSetGameScreenState, useGameScreenState, useSetUserResultData, useUserResultData } from "./GameContext";
 
 
 // set cursor img
@@ -92,6 +93,14 @@ let gameScreenHeader = null;
 let gameCanvas;         // canvas id
 let gameContext;        // canvas ref
 
+let isCorrectAnswer = false;            // check if user correct problem (유저가 문제를 맞았는지 여부 확인 변수)
+let isChangeScore = false;              // check if score increase after user correct problem (유저가 정답 여부에 따라 점수 변화를 체크를 확인 변수)
+let isGameEnd = false;                  // check if game is end (시간이 다되어서 게임이 끝나는지 확인)
+let incorrectWord = [];
+let correctWord = [];
+let curStageAnswer = "";
+
+
 // Any value is put in nine moles, and only a mole with a maximum value of three to four of them is selected and shown in the current round.
 // 9개의 두더지에 임의 값을 넣고, 그 중 최대 값 3~ 4 개인 두더지만 뽑아서 현 스테이지에 보여준다. => 스테이지에 보여줄 두더지를 선정한다.
 const setMoleIsGame = (numProblem) => {
@@ -122,140 +131,6 @@ const setMoleIsGame = (numProblem) => {
 }
 
 
-
-let isCorrectAnswer = false;            // check if user correct problem (유저가 문제를 맞았는지 여부 확인 변수)
-let isChangeScore = false;              // check if score increase after user correct problem (유저가 정답 여부에 따라 점수 변화를 체크를 확인 변수)
-let isGameEnd = false;                  // check if game is end (시간이 다되어서 게임이 끝나는지 확인)
-
-const gameController = () => {
-
-    // Ingame Header(Score and Time) Render (인게임 헤더에 점수 와 시간 랜더)
-    if (count % 74 === 0 && gameState !== 4) {
-        gameScreenHeader.update(gameState);
-        if (gameScreenHeader.getIsTimeOut()) {
-            gameState = 4;
-            preEndCount = count;
-        }
-
-        if (gameState === 2 && isChangeScore) {
-            gameScreenHeader.setIsCorrectAnswer({ isCorrectAnswer: isCorrectAnswer })
-            isChangeScore = false;
-        }
-    }
-
-    // Create Update(calculate & function) Area
-    if (count % frame === 0) {
-        // Stage Start
-        if (gameState === 0) {
-            // gameScreenHeader.update(gameState);
-            let curStageMoleList = setMoleIsGame(gameStageData[stage]["problem"].length);
-            let k = 0;
-            curStageMoleList.forEach((element) => {
-                let isAnswer = 2;
-                if (gameStageData[stage]["answer"] === k) {
-                    isAnswer = 1;
-                }
-                let moleStageData = {
-                    stage: gameStageData[stage]["stage"],
-                    problem: gameStageData[stage]["problem"][k],
-                    isAnswer: isAnswer,
-                    isGame: true
-                };
-
-                Moles[element].update({ gameState: gameState, moleStageData: moleStageData });
-                k++;
-            });
-
-
-            gBoardText.update({ gameState: gameState, boardStageData: gameStageData[stage] });
-            gameState = 1;
-        }
-
-        // check if user correct answer in stage
-        if (gameState === 1) {
-            // gameScreenHeader.update(gameState);
-            gameCanvas.addEventListener("click", function (e) {
-                let numStageClear = [];
-                Moles.forEach((element) => {
-                    // numStageClear = element.update({ gameState: gameState, mousePos: { x: e.layerX, y: e.layerY } });
-                    numStageClear.push(element.update({ gameState: gameState, mousePos: { x: e.layerX, y: e.layerY } }));
-                })
-                // correct answer
-                if (numStageClear.includes(1)) {
-                    gameState = 2;
-                    isChangeScore = true;
-                    preCount = count;
-                    isCorrectAnswer = true;
-                    console.log("Yes!!!");
-                }
-                // no correct answer
-                else if (numStageClear.includes(2)) {
-                    gameState = 2;
-                    preCount = count;
-                    isCorrectAnswer = false;
-                    console.log("No!!!");
-                }
-
-            });
-        }
-
-        //  Show O , X in stage
-        if (gameState === 2) {
-            // gameScreenHeader.update(gameState);
-
-            gBoardText.update({ gameState: gameState, isCorrectAnswer: isCorrectAnswer });
-
-            if (preCount + 50 < count) {
-                gameState = 3;
-            }
-
-        }
-
-        // Show Answer on board , in stage
-        if (gameState === 3) {
-            // gameScreenHeader.update(gameState);
-
-            gBoardText.update({ gameState: gameState });
-
-            if (preCount + 150 < count) {
-                Moles.forEach((element) => {
-                    // numStageClear = element.update({ gameState: gameState, mousePos: { x: e.layerX, y: e.layerY } });
-                    element.update({ gameState: gameState });
-                })
-                gameState = 0;
-                stage += 1;
-                console.log("Next Stage");
-            }
-        }
-
-        if (gameState === 4) {
-            gBoardText.update({ gameState: gameState });
-            console.log("end");
-            if (preEndCount + 150 < count) {
-                // state를 어떻게 바꾸지 ?
-            }
-        }
-
-    }
-
-    // Create Render Area
-    if (count % frame === 0) {
-        gameContext.clearRect(0, 0, gameSetting["GAME_W"], gameSetting["GAME_H"]);
-
-        Moles.forEach((element) => {
-            // element.setIsGame(true);
-            element.render();
-        });
-        gBoardText.render({ gameState: gameState });
-        gameScreenHeader.render();
-    }
-
-    count += 1;
-
-    return window.requestAnimationFrame(gameController);
-
-}
-
 function GamePlay() {
 
     // Change the mouse img if mouse click on canvas (canvas 영역에서 마우스를 클릭하면 마우스의 해머 이미지가 변하게 하는 state)
@@ -264,6 +139,11 @@ function GamePlay() {
     const onMouseClick = () => {
         setIsMouseClick(!isMouseClick);
     };
+
+    const setGameScreenState = useSetGameScreenState();
+    const gameScreenState = useGameScreenState();
+    const setUserResultData = useSetUserResultData();
+    const userResultData = useUserResultData();
 
     // 
     const setInitMole = () => {
@@ -289,11 +169,155 @@ function GamePlay() {
         gameScreenHeader = new GameScreenHeader(gameContext);
     };
 
+
+    const gameController = () => {
+
+        // Ingame Header(Score and Time) Render (인게임 헤더에 점수 와 시간 랜더)
+        if (count % 74 === 0 && gameState !== 4) {
+            gameScreenHeader.update(gameState);
+            if (gameScreenHeader.getIsTimeOut()) {
+                gameState = 4;
+                preEndCount = count;
+            }
+    
+            if (gameState === 2 && isChangeScore) {
+                gameScreenHeader.setIsCorrectAnswer({ isCorrectAnswer: isCorrectAnswer })
+                isChangeScore = false;
+            }
+        }
+    
+        // Create Update(calculate & function) Area
+        if (count % frame === 0) {
+            // Stage Start
+            if (gameState === 0) {
+                // gameScreenHeader.update(gameState);
+                let curStageMoleList = setMoleIsGame(gameStageData[stage]["problem"].length);
+                let k = 0;
+                curStageAnswer = gameStageData[stage]["problem"][gameStageData[stage]["answer"]];
+                curStageMoleList.forEach((element) => {
+                    let isAnswer = 2;
+                    if (gameStageData[stage]["answer"] === k) {
+                        isAnswer = 1;
+                    }
+                    let moleStageData = {
+                        stage: gameStageData[stage]["stage"],
+                        problem: gameStageData[stage]["problem"][k],
+                        isAnswer: isAnswer,
+                        isGame: true
+                    };
+    
+                    Moles[element].update({ gameState: gameState, moleStageData: moleStageData });
+                    k++;
+                });
+    
+    
+                gBoardText.update({ gameState: gameState, boardStageData: gameStageData[stage] });
+                gameState = 1;
+            }
+    
+            // check if user correct answer in stage
+            if (gameState === 1) {
+                // gameScreenHeader.update(gameState);
+                gameCanvas.addEventListener("click", function (e) {
+                    let numStageClear = [];
+                    Moles.forEach((element) => {
+                        // numStageClear = element.update({ gameState: gameState, mousePos: { x: e.layerX, y: e.layerY } });
+                        numStageClear.push(element.update({ gameState: gameState, mousePos: { x: e.layerX, y: e.layerY } }));
+                    })
+                    // correct answer
+                    if (numStageClear.includes(1)) {
+                        
+                        
+                        gameState = 2;
+                        isChangeScore = true;
+                        preCount = count;
+                        isCorrectAnswer = true;
+                        correctWord.push(curStageAnswer);
+                        console.log("Yes!!!");
+                    }
+                    // no correct answer
+                    else if (numStageClear.includes(2)) {
+                        gameState = 2;
+                        preCount = count;
+                        isCorrectAnswer = false;
+                        incorrectWord.push(curStageAnswer);
+                        console.log("No!!!");
+                    }
+    
+                });
+            }
+    
+            //  Show O , X in stage
+            if (gameState === 2) {
+                // gameScreenHeader.update(gameState);
+    
+                gBoardText.update({ gameState: gameState, isCorrectAnswer: isCorrectAnswer });
+    
+                if (preCount + 50 < count) {
+                    gameState = 3;
+                }
+    
+            }
+    
+            // Show Answer on board , in stage
+            if (gameState === 3) {
+                // gameScreenHeader.update(gameState);
+    
+                gBoardText.update({ gameState: gameState });
+    
+                if (preCount + 150 < count) {
+                    Moles.forEach((element) => {
+                        // numStageClear = element.update({ gameState: gameState, mousePos: { x: e.layerX, y: e.layerY } });
+                        element.update({ gameState: gameState });
+                    })
+                    gameState = 0;
+                    stage += 1;
+                    console.log("Next Stage");
+                }
+            }
+
+            if (gameState === 4) {
+                gBoardText.update({ gameState: gameState });
+                // console.log("end");
+                if (preEndCount + 150 < count && !isGameEnd) {
+                    // state를 어떻게 바꾸지 ?
+                    setUserResultData({ "USER_SCORE": gameScreenHeader.getScore(), "USER_INCORRECT": incorrectWord, "USER_CORRECT": correctWord});
+
+                    setGameScreenState(4);
+                    // init 추가하기
+                    // console.log(gameScreenState);
+                    isGameEnd = true;
+                }
+            }
+    
+        }
+    
+        // Create Render Area
+        if (count % frame === 0) {
+            gameContext.clearRect(0, 0, gameSetting["GAME_W"], gameSetting["GAME_H"]);
+    
+            Moles.forEach((element) => {
+                // element.setIsGame(true);
+                element.render();
+            });
+            gBoardText.render({ gameState: gameState });
+            gameScreenHeader.render();
+        }
+    
+        count += 1;
+    
+        return window.requestAnimationFrame(gameController);
+    
+    }
+
     let gameCanvasRef = useRef();
+
+    let isGameInit = true;
 
     // just one
     useEffect(() => {
 
+        // if(isGameInit){
         let cmp = gameCanvasRef.current;
         gameCanvas = cmp;
         gameContext = gameCanvas.getContext('2d');
@@ -301,6 +325,8 @@ function GamePlay() {
         setInitMole();
 
         let t = window.requestAnimationFrame(gameController);
+        isGameInit = false;
+        // }
 
     }, []);
 
