@@ -1,14 +1,12 @@
 import React, {useState} from "react";
 import styled, {css} from "styled-components";
-import BaseModal from "./BaseModal";
+import BaseModal, {CloseArea} from "./BaseModal";
 import { BsX } from "react-icons/bs";
 import {useSetGameScreenState} from "../GameContext";
 
 const Whole = styled.div`
-    width: 535px;
-
+    width: 537px;
     height: 304px;
-
     // border : 1px solid black;
 
     display: flex;
@@ -17,17 +15,17 @@ const Whole = styled.div`
     // justify-content: center;
 `;
 
-const CloseArea = styled.div`
-    width: 35px;
-    height: 35px;
-    margin-left: 450px;
-    margin-bottom: 35px;
-    margin-top: 15px;
-    // border: 1px solid black;
+// const CloseArea = styled.div`
+//     width: 35px;
+//     height: 35px;
+//     margin-left: 450px;
+//     margin-bottom: 35px;
+//     margin-top: 15px;
+//     // border: 1px solid black;
 
-    line-height: 26px;
+//     line-height: 26px;
 
-`;
+// `;
 
 const DescriptionTxt = styled.p`
     width: 415px;
@@ -35,6 +33,7 @@ const DescriptionTxt = styled.p`
 
     // border: 1px solid black;
     margin-bottom: 45px;
+    margin-top: 35px;
 
     font-family: Jua;
     font-style: normal;
@@ -110,7 +109,7 @@ function NickEnrollModal(){
     const [isOverInput, setIsOverInput] = useState(false);
 
     const onClose = () => {
-        setGameScreenState(7);
+        setGameScreenState(0);
     };
 
     const onChange = (e) => {
@@ -127,6 +126,7 @@ function NickEnrollModal(){
         }
         else{
             setIsOverInput(false);
+            setGameScreenState(6);
             console.log("o");
         }
         console.log(isOverInput);
@@ -160,3 +160,4 @@ function NickEnrollModal(){
 
 
 export default NickEnrollModal;
+export {CloseArea};

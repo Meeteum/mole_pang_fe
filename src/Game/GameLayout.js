@@ -5,6 +5,7 @@ import DescriptionModal from "./Modal/DescriptionModal";
 import GameMenu from "./GameMenu";
 import BaseModal from "./Modal/BaseModal";
 import EndScoreModal from "./Modal/EndScoreModal";
+import RankModal from "./Modal/RankModal";
 
 import { useSetGameScreenState, useGameScreenState } from "./GameContext";
 import NickEnrollModal from "./Modal/NickEnrollModal";
@@ -42,10 +43,14 @@ function GameLayout() {
             break;
         case 5:
             gameScreen = <NickEnrollModal/>;
+            break;
+        case 6:
+            gameScreen = <RankModal/>;
+            break;
         default:
             // gameScreen = <BaseModal />;
             // gameScreen = <DescriptionModal />;
-            gameScreen = <NickEnrollModal/>;
+            gameScreen = <GameScreen/>;
             // gameScreen = <EndScoreModal />;
             // gameScreen = <GameMenu />;
             // gameScreen = <GameScreen />;

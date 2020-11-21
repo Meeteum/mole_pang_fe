@@ -1,20 +1,22 @@
+import {initGameSetValue as gameSetValue} from "./GameSetting.js";
+
 class GameScreenHeader {
     constructor(gameContext) {
         this.gameContext = gameContext;
         this.boardTextData = {
             position: [0, 0],
-            width: 960,
-            height: 50,
-            isNext: false,
+            width: gameSetValue.GAME_SCREEN_HEADER_WIDTH,
+            height: gameSetValue.GAME_SCREEN_HEADER_HEIGHT,
         };
-        this.time = 5;
-        this.score = 0;
+        this.time = gameSetValue.GAME_TIME;
+        this.score = gameSetValue.GAME_SCORE;
         this.gameState = 0
     }
 
     init() {
-        this.time = 60;
-        this.score = 0;
+        this.time = gameSetValue.GAME_TIME;
+        this.score = gameSetValue.GAME_SCORE;
+        this.gameState = 0
     }
 
     setIsCorrectAnswer({ isCorrectAnswer }) {

@@ -6,7 +6,6 @@ const Whole = styled.div`
     width: 960px;
     height: 595px;
 
-
     background: #777676;
     // border : 1px solid black;
 
@@ -41,8 +40,20 @@ const ModalLayout = styled.div`
 
     height: 306px;
 
-    border : 1px solid black;
+    // border : 1px solid black;
     border-radius : 5px;
+`;
+
+const CloseArea = styled.div`
+    width: 35px;
+    height: 35px;
+    margin-left: 500px;
+    margin-top: -20px;
+    // margin-bottom: 0px;
+    // border: 1px solid black;
+
+    line-height: 26px;
+
 `;
 
 function BaseModal({ children }) {
@@ -61,3 +72,4 @@ function BaseModal({ children }) {
 
 
 export default BaseModal;
+export {CloseArea};

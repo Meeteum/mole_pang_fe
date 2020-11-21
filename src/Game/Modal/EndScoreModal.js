@@ -336,7 +336,7 @@ function EndScoreModal() {
         return isLen === 0 ? <WordTxt></WordTxt> : wordList[indexList].map((tmp) => <WordTxt>{tmp}</WordTxt>);
     }
     const onClose = () => {
-        setGameScreenState(5);
+        setGameScreenState(0);
     };
 
     const onReplay = () => {

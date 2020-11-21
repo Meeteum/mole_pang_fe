@@ -7,7 +7,9 @@ import Mole from "./GameObject/Mole.js";
 import BoardText from "./GameObject/BoardText.js";
 import GameScreenHeader from "./GameScreenHeader.js";
 import { useSetGameScreenState, useGameScreenState, useSetUserResultData, useUserResultData } from "./GameContext";
+import {initGameSetValue as gameSetValue} from "./GameSetting.js";
 
+// const gameSetValue = initGameSetValue;
 
 // set cursor img
 const GameBackground = styled.div`
@@ -20,8 +22,8 @@ const GameBackground = styled.div`
 `;
 
 const GameCanvas = styled.canvas.attrs({
-    width: 960,
-    height: 600
+    width: gameSetValue.GAME_W,
+    height: gameSetValue.GAME_H
 })`
     // width: 960px;
     // height: 530px;
@@ -62,44 +64,6 @@ const gameStageData = [
     },
 
 ];
-
-// game setting value
-const gameSetting = {
-    "GAME_W": 960,
-    "GAME_H": 600,
-    "GAME_C_W": 20,
-    "GAME_C_H": 30,
-    "FIRST_MOLE_X": 234,
-    // "FIRST_MOLE_Y": 279,
-    "FIRST_MOLE_Y": 288,
-    "MOLE_INTERVAL_X": 207,
-    "MOLE_INTERVAL_Y": 74,
-};
-
-let preCount = 0;   // Value for state Hold Time Calculation
-let preEndCount = 0;
-let count = 0;      // game running time    (게임 클럭)
-let stage = 0;      // game stage (stage == 문제)
-
-// Val Game Frame   16 == 60fps,  32 == 30fps
-let frame = 32;
-// 0: 문제랑 두더지가 나옴
-let gameState = 0;
-
-let Moles = [];
-let gBoardText = null;
-let gameScreenHeader = null;
-
-let gameCanvas;         // canvas id
-let gameContext;        // canvas ref
-
-let isCorrectAnswer = false;            // check if user correct problem (유저가 문제를 맞았는지 여부 확인 변수)
-let isChangeScore = false;              // check if score increase after user correct problem (유저가 정답 여부에 따라 점수 변화를 체크를 확인 변수)
-let isGameEnd = false;                  // check if game is end (시간이 다되어서 게임이 끝나는지 확인)
-let incorrectWord = [];
-let correctWord = [];
-let curStageAnswer = "";
-
 
 // Any value is put in nine moles, and only a mole with a maximum value of three to four of them is selected and shown in the current round.
 // 9개의 두더지에 임의 값을 넣고, 그 중 최대 값 3~ 4 개인 두더지만 뽑아서 현 스테이지에 보여준다. => 스테이지에 보여줄 두더지를 선정한다.
@@ -145,6 +109,31 @@ function GamePlay() {
     const setUserResultData = useSetUserResultData();
     const userResultData = useUserResultData();
 
+    let preCount = 0;   // Value for state Hold Time Calculation
+    let preEndCount = 0;
+    let count = 0;      // game running time    (게임 클럭)
+    let stage = 0;      // game stage (stage == 문제)
+
+    // Val Game Frame   16 == 60fps,  32 == 30fps
+    let frame = 32;
+    // 0: 문제랑 두더지가 나옴
+    let gameState = 0;
+
+    let Moles = [];
+    let gBoardText = null;
+    let gameScreenHeader = null;
+
+    let gameCanvasRef = useRef();
+    let gameCanvas;         // canvas id
+    let gameContext;        // canvas ref
+
+    let isCorrectAnswer = false;            // check if user correct problem (유저가 문제를 맞았는지 여부 확인 변수)
+    let isChangeScore = false;              // check if score increase after user correct problem (유저가 정답 여부에 따라 점수 변화를 체크를 확인 변수)
+    let isGameEnd = false;                  // check if game is end (시간이 다되어서 게임이 끝나는지 확인)
+    let incorrectWord = [];
+    let correctWord = [];
+    let curStageAnswer = "";
+
     // 
     const setInitMole = () => {
 
@@ -155,17 +144,19 @@ function GamePlay() {
 
         for (let y = 0; y < 3; y++) {
             for (let x = 0; x < 3; x++)
+
                 Moles.push(new Mole(
-                    gameSetting["FIRST_MOLE_X"] + gameSetting["MOLE_INTERVAL_X"] * x,
-                    gameSetting["FIRST_MOLE_Y"] + gameSetting["MOLE_INTERVAL_Y"] * y,
-                    78,
-                    110,
+                    gameSetValue.FIRST_MOLE_X + gameSetValue.MOLE_INTERVAL_X * x,
+                    gameSetValue.FIRST_MOLE_Y + gameSetValue.MOLE_INTERVAL_Y * y,
+                    gameSetValue.MOLE_IMG_WIDTH,
+                    gameSetValue.MOLE_IMG_HEIGHT,
                     x + 3 * y,
                     gameContext)
                 );
         }
 
-        gBoardText = new BoardText(385, 225, 100, 100, gameContext);
+        gBoardText = new BoardText(gameSetValue.BOARD_X, gameSetValue.BOARD_Y,
+            gameSetValue.BOARD_WIDTH, gameSetValue.BOARD_HEIGHT, gameContext);
         gameScreenHeader = new GameScreenHeader(gameContext);
     };
 
@@ -175,11 +166,14 @@ function GamePlay() {
         // Ingame Header(Score and Time) Render (인게임 헤더에 점수 와 시간 랜더)
         if (count % 74 === 0 && gameState !== 4) {
             gameScreenHeader.update(gameState);
+
+            // 시간 over 되었을 경우
             if (gameScreenHeader.getIsTimeOut()) {
                 gameState = 4;
                 preEndCount = count;
             }
-    
+
+            // 맞았을 경우 점수 증가
             if (gameState === 2 && isChangeScore) {
                 gameScreenHeader.setIsCorrectAnswer({ isCorrectAnswer: isCorrectAnswer })
                 isChangeScore = false;
@@ -206,13 +200,19 @@ function GamePlay() {
                         isGame: true
                     };
     
-                    Moles[element].update({ gameState: gameState, moleStageData: moleStageData });
+                    // Moles[element].update({ gameState: gameState, moleStageData: moleStageData });
+                    Moles[element].update({ gameState: gameState });
+                    Moles[element].setStage(moleStageData)
                     k++;
                 });
-    
+
+                
     
                 gBoardText.update({ gameState: gameState, boardStageData: gameStageData[stage] });
+
+                
                 gameState = 1;
+
             }
     
             // check if user correct answer in stage
@@ -253,7 +253,7 @@ function GamePlay() {
     
                 gBoardText.update({ gameState: gameState, isCorrectAnswer: isCorrectAnswer });
     
-                if (preCount + 50 < count) {
+                if (preCount + 40 < count) {
                     gameState = 3;
                 }
     
@@ -265,7 +265,7 @@ function GamePlay() {
     
                 gBoardText.update({ gameState: gameState });
     
-                if (preCount + 150 < count) {
+                if (preCount + 80 < count) {
                     Moles.forEach((element) => {
                         // numStageClear = element.update({ gameState: gameState, mousePos: { x: e.layerX, y: e.layerY } });
                         element.update({ gameState: gameState });
@@ -273,14 +273,16 @@ function GamePlay() {
                     gameState = 0;
                     stage += 1;
                     console.log("Next Stage");
+
                 }
             }
 
             if (gameState === 4) {
+
                 gBoardText.update({ gameState: gameState });
                 // console.log("end");
                 if (preEndCount + 150 < count && !isGameEnd) {
-                    // state를 어떻게 바꾸지 ?
+    
                     setUserResultData({ "USER_SCORE": gameScreenHeader.getScore(), "USER_INCORRECT": incorrectWord, "USER_CORRECT": correctWord});
 
                     setGameScreenState(4);
@@ -294,7 +296,7 @@ function GamePlay() {
     
         // Create Render Area
         if (count % frame === 0) {
-            gameContext.clearRect(0, 0, gameSetting["GAME_W"], gameSetting["GAME_H"]);
+            gameContext.clearRect(0, 0, gameSetValue.GAME_W, gameSetValue.GAME_H);
     
             Moles.forEach((element) => {
                 // element.setIsGame(true);
@@ -310,22 +312,16 @@ function GamePlay() {
     
     }
 
-    let gameCanvasRef = useRef();
-
-    let isGameInit = true;
-
     // just one
     useEffect(() => {
 
-        // if(isGameInit){
-        let cmp = gameCanvasRef.current;
-        gameCanvas = cmp;
+        gameCanvas = gameCanvasRef.current;
         gameContext = gameCanvas.getContext('2d');
 
         setInitMole();
 
         let t = window.requestAnimationFrame(gameController);
-        isGameInit = false;
+
         // }
 
     }, []);

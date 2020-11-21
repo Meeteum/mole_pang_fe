@@ -68,10 +68,10 @@ class Mole {
         }
     }
 
-    update({ gameState, moleStageData, mousePos }) {
+    update({ gameState, mousePos }) {
         if (gameState == 0) {
             // this.setRandomIsGame();
-            this.setStage(moleStageData);
+            
             this.setSpeechBubbleTxtPositionX();
         }
 
