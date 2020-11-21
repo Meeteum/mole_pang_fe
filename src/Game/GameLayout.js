@@ -1,12 +1,13 @@
 import React from "react";
 import styled from "styled-components";
 import GameScreen from "./GameScreen";
-import DescriptionModal from "./DescriptionModal";
+import DescriptionModal from "./Modal/DescriptionModal";
 import GameMenu from "./GameMenu";
-import BaseModal from "./BaseModal";
-import EndScoreModal from "./EndScoreModal";
+import BaseModal from "./Modal/BaseModal";
+import EndScoreModal from "./Modal/EndScoreModal";
 
 import { useSetGameScreenState, useGameScreenState } from "./GameContext";
+import NickEnrollModal from "./Modal/NickEnrollModal";
 
 const Whole = styled.div`
     width: 960px;
@@ -20,7 +21,7 @@ const Whole = styled.div`
 
 `;
 
-// Contain Game Scrren in Layout
+// Contain Game Screen in Layout
 function GameLayout() {
     const gameScreenState = useGameScreenState();
     const setGameScreenState = useSetGameScreenState();
@@ -39,12 +40,15 @@ function GameLayout() {
         case 4:
             gameScreen = <EndScoreModal/>;
             break;
+        case 5:
+            gameScreen = <NickEnrollModal/>;
         default:
             // gameScreen = <BaseModal />;
             // gameScreen = <DescriptionModal />;
+            gameScreen = <NickEnrollModal/>;
             // gameScreen = <EndScoreModal />;
             // gameScreen = <GameMenu />;
-            gameScreen = <GameScreen />;
+            // gameScreen = <GameScreen />;
             break;
     };
 

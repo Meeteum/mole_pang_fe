@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import BaseModal from "./BaseModal";
 import { BsX, BsChevronLeft, BsChevronRight } from "react-icons/bs";
-import {useUserResultData, useSetGameScreenState} from "./GameContext";
+import {useUserResultData, useSetGameScreenState} from "../GameContext";
 
+//EndScore Modal Header Layout
 const ModalHeader = styled.div`
     width: 535px;
     height: 45px;
@@ -14,6 +15,7 @@ const ModalHeader = styled.div`
 
 `;
 
+//EndScore Modal title in Header
 const ModalTitle = styled.h1`
 
     width: 100px;
@@ -33,6 +35,7 @@ const ModalTitle = styled.h1`
     text-align: center;
 `;
 
+//EndScore Modal Body Layout
 const ModalBody = styled.div`
     width: 535px;
     height: 254px;
@@ -79,9 +82,13 @@ const ModalBodyLeftBottom = styled.div`
     align-items: center;
 `;
 
-const ScoreTxt = styled.div`
+// 점수 글자 Text
+const ScoreTxt = styled.p`
     width: 54px;
-    height: 42px;
+    height: 21px;
+
+    margin-top : 0px;
+    margin-bottom : 0px;
 
     font-family: Roboto;
     font-style: normal;
@@ -97,6 +104,7 @@ const ScoreTxt = styled.div`
     color: rgba(0, 0, 0, 0.45);
 `;
 
+// Score Text box
 const Score = styled.div`
     width: 232px;
     height: 54px;
@@ -111,7 +119,8 @@ const Score = styled.div`
     color: rgba(0, 0, 0, 0.7);
 `;
 
-const Btn = styled.div`
+// Replay or Ranking btn
+const Btn = styled.button`
     width: 200px;
     height: 50px;
 
@@ -131,6 +140,7 @@ const Btn = styled.div`
     color: rgba(0, 0, 0, 0.63);
 `;
 
+//EndScore Modal in Body Right Layout
 const ModalBodyRight = styled.div`
     width: 260px;
     height: 254px;
@@ -140,6 +150,7 @@ const ModalBodyRight = styled.div`
     justify-content: space-around;
 `;
 
+// incorrect or correct word box
 const WordBox = styled.div`
     width: 250px;
     height: 120px;
@@ -296,12 +307,12 @@ function EndScoreModal() {
 
     const onPagingRight = (test) => {
         if (test === "incorrect") {
-            if (indexIncorrectList !== maxIncorrectWordPage - 1) {
+            if (indexIncorrectList !== maxIncorrectWordPage) {
                 setIndexIncorrectList(indexIncorrectList + 1);
             }
         }
         else {
-            if (indexCorrectList !== maxCorrectWordPage - 1) {
+            if (indexCorrectList !== maxCorrectWordPage) {
                 setIndexCorrectList(indexCorrectList + 1);
             }
         }
@@ -357,7 +368,7 @@ function EndScoreModal() {
                             <PagingBtn onClick={() => onPagingLeft('incorrect')}><BsChevronLeft /></PagingBtn>
                             <PagingNum>{indexIncorrectList + 1}</PagingNum>
                             <PagingSlash>|</PagingSlash>
-                            <PagingNum>{maxIncorrectWordPage}</PagingNum>
+                            <PagingNum>{maxIncorrectWordPage + 1}</PagingNum>
                             <PagingBtn onClick={() => { onPagingRight('incorrect') }}><BsChevronRight /></PagingBtn>
                         </WordHeader>
                         <WordList>
@@ -371,7 +382,7 @@ function EndScoreModal() {
                             <PagingBtn onClick={onPagingLeft}><BsChevronLeft /></PagingBtn>
                             <PagingNum>{indexCorrectList + 1}</PagingNum>
                             <PagingSlash>|</PagingSlash>
-                            <PagingNum>{maxCorrectWordPage}</PagingNum>
+                            <PagingNum>{maxCorrectWordPage + 1}</PagingNum>
                             <PagingBtn onClick={onPagingRight}><BsChevronRight /></PagingBtn>
                         </WordHeader>
                         <WordList>{onWordList({isLen:correctWordLength, wordList:correctWordList, indexList:indexCorrectList})}</WordList>
